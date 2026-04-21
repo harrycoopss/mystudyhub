@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Study Hub App</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <style>
+    body { font-family: Arial; margin:0; background:#eef2f7; }
+    header { background:#1e2a38; color:white; padding:15px; text-align:center; }
+    .container { padding:15px; max-width:900px; margin:auto; }
+
+    input, textarea { width:100%; padding:10px; margin-bottom:10px; border-radius:8px; border:1px solid #ccc; }
+
+    .card { background:white; padding:15px; margin-bottom:15px; border-radius:12px; box-shadow:0 2px 6px rgba(0,0,0,0.1); }
+
+    .topic { display:flex; justify-content:space-between; align-items:center; margin:5px 0; }
+
+    button { border:none; background:#3498db; color:white; padding:6px 12px; border-radius:6px; cursor:pointer; }
+
+    .star { cursor:pointer; font-size:18px; }
+
+    .flashcard { background:#fff; border-radius:12px; padding:30px; text-align:center; cursor:pointer; min-height:80px; display:flex; align-items:center; justify-content:center; }
+
+    @media(max-width:600px){ h1{font-size:20px;} }
+  </style>
+</head>
+<body>
+
+<header>
+  <h1>📚 Study Hub</h1>
+</header>
+
+<div class="container">
+
+<input type="text" id="search" placeholder="Search..." onkeyup="search()">
+
+<div class="card">
+  <h3>⭐ Important Topics</h3>
+  <div id="importantList"></div>
+</div>
+
+<div class="card">
+  <h3>Maths</h3>
+  <div class="topic"><a href="#">Algebra Notes</a> <span class="star" onclick="toggleStar('Algebra Notes')">⭐</span></div>
+  <div class="topic"><a href="#">Calculus Flashcards</a> <span class="star" onclick="toggleStar('Calculus Flashcards')">⭐</span></div>
+</div>
+
+<div class="card">
+  <h3>History</h3>
+  <div class="topic"><a href="#">Cold War Summary</a> <span class="star" onclick="toggleStar('Cold War Summary')">⭐</span></div>
+</div>
+
+<div class="card">
+  <h3>Philosophy</h3>
+  <div class="topic"><a href="#">Utilitarianism Notes</a> <span class="star" onclick="toggleStar('Utilitarianism Notes')">⭐</span></div>
+</div>
+
+<!-- Flashcards Viewer -->
+<div class="card">
+  <h3>🧠 Flashcards</h3>
+  <div class="flashcard" onclick="flipCard()" id="card">Click to start</div>
+</div>
+
+<!-- Create Flashcards -->
+<div class="card">
+  <h3>➕ Create Flashcard</h3>
+  <textarea id="question" placeholder="Enter question"></textarea>
+  <textarea id="answer" placeholder="Enter answer"></textarea>
+  <button onclick="addFlashcard()">Add Flashcard</button>
+</div>
+
+</div>
+
+<script>
+let starred = JSON.parse(localStorage.getItem('stars')) || [];
+let flashcards = JSON.parse(localStorage.getItem('flashcards')) || [
+  {q:"What is utilitarianism?", a:"Maximise happiness"}
+];
+
+let index=0, showingQ=true;
+
+function toggleStar(name){
+  if(starred.includes(name)){
+    starred = starred.filter(x=>x!==name);
+  } else {
+    starred.push(name);
+  }
+  localStorage.setItem('stars', JSON.stringify(starred));
+  renderImportant();
+}
+
+function renderImportant(){
+  let list=document.getElementById('importantList');
+  list.innerHTML='';
+  starred.forEach(item=>{
+    let div=document.createElement('div');
+    div.textContent=item;
+    list.appendChild(div);
+  });
+}
+
+function search(){
+  let val=document.getElementById('search').value.toLowerCase();
+  let topics=document.querySelectorAll('.topic');
+  topics.forEach(t=>{
+    let text=t.innerText.toLowerCase();
+    t.style.display = text.includes(val)?'flex':'none';
+  });
+}
+
+function flipCard(){
+  let card=document.getElementById('card');
+  if(flashcards.length===0){
+    card.textContent="No flashcards yet";
+    return;
+  }
+
+  if(showingQ){
+    card.textContent=flashcards[index].q;
+  } else {
+    card.textContent=flashcards[index].a;
+    index=(index+1)%flashcards.length;
+  }
+  showingQ=!showingQ;
+}
+
+function addFlashcard(){
+  let q=document.getElementById('question').value;
+  let a=document.getElementById('answer').value;
+
+  if(!q || !a) return;
+
+  flashcards.push({q:q, a:a});
+  localStorage.setItem('flashcards', JSON.stringify(flashcards));
+
+  document.getElementById('question').value='';
+  document.getElementById('answer').value='';
+
+  alert('Flashcard added');
+}
+
+renderImportant();
+</script>
+
+</body>
+</html>
